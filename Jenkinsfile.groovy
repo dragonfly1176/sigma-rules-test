@@ -1,20 +1,13 @@
-pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/dragonfly1176/sigma-rules-test'
-            }
+retry(3) {
+  for (int i = 0; i < 10; i++) {
+    branches["branch${i}"] = {
+      node {
+        retry(3) {
+          checkout scm
         }
-        stage('Build') {
-            steps {
-                sh 'echo "Building the project..."'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'echo "Running tests..."'
-            }
-        }
+        sh 'make world'
+      }
     }
+  }
 }
+parallel branches
